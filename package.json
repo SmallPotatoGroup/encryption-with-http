@@ -1,0 +1,16 @@
+{
+  "name": "encryption-with-http",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "nodemon src/main.js"
+  },
+  "repository": "git@sp.github.com:SmallPotatoGroup/encryption-with-http.git",
+  "author": "SmallPotatoCZ <sp.zhangchao@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "morgan": "^1.9.1"
+  }
+}

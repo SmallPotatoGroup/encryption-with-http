@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <h1>H5 数据加密传输</h1>
+  <button onclick="req()">点击开始请求数据</button>
+</body>
+<script src="./alg.js"></script>
+<script src="./jsencrypt.min.js"></script>
+<script src="./jsaes.js"></script>
+<script defer>
+  // 公用函数
+  function postData(url = ``, data = {}) {
+    return fetch(url, {
+        method: "POST",
+        // mode: "cors",
+        cache: "no-cache",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8"
+        },
+        redirect: "follow",
+        referrer: "no-referrer",
+        body: data,
+      })
+      .then(response => {
+        return response.json();
+      }).then(res => {
+        if (!res.result) {
+          return res;
+        } else {
+          return res;
+        }
+      });
+  }
+
+  // 私钥
+  var _PRIVATE_KEY =
+    `-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQC8FfWyxaV7P61K1otOEJMz73qRuKj7BuINRfVzq4zZJ8LtlhZY
+JxmxXbBG8DwyOvq+rQw2tNOM3Gx80jpM9OaL89EpzLq2PHEaOsUvCwzMrvtUqFKo
+qBUZqTlcWxOFDMwIBPQUoLKxAM/uYdNaTjIKCUrLhAdhBZXLJN3ns7KjIQIDAQAB
+AoGBAJInRktqxlJlgtV6rbk1rA1ZdBc0NSsLiDDkQf1mOwarnQ9d53MMvyxSLx6Q
+o1Ys+pechLcmAJWe2zaLbf5K97JHqb5oarI7MoMCEcXsW1M7ru/6TpdHckVoX2cO
+ZbLPRA4VDZP2nujqlbawEdAPhH/Pm5GiS5Q9fjSyT4FaboS5AkEA5OOfm0Cr3uQW
+1MbNvO37/HRo8o7TayKW1k77Ip/poJY68Jthl9p8BGLJVwHUH+/r1kduO7RZpSHb
+VKPLz0RWtwJBANJdGLHwTNTn5gxmeirlR4SpJUWXggCgcpVxSNnhuGm7ikGe1vIb
+x+o0p/Ghk6+yu+cXBfxsDM98Hp8NhaN2vOcCQAvDRuiLokmKH0JAFUKoWFLZCKuu
+e17+IBJTbMSSw0blcZH76kALkmQHT6GRDn21rsEMWrXmxtSdsM/guxCjynECQAXS
+mdpjAl1qRc3WEE+bpQ0g+W0hsnF9/23vgsq1Gruie0MxuFVfO3taFcP0avgUBGtz
+EbFY9EnR768LWsWZhcUCQQCvug8BFftr6dqzyntI1SNkvQZ7h3BPjHfT5+aSyeGs
+64qH+y6PTz9kJf0gzCsWQM6C83tHOMUpN06lNsfK4i6c
+-----END RSA PRIVATE KEY-----`;
+
+  // 公钥
+  var _PUBLIC_KEY =
+    `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8FfWyxaV7P61K1otOEJMz73qR
+uKj7BuINRfVzq4zZJ8LtlhZYJxmxXbBG8DwyOvq+rQw2tNOM3Gx80jpM9OaL89Ep
+zLq2PHEaOsUvCwzMrvtUqFKoqBUZqTlcWxOFDMwIBPQUoLKxAM/uYdNaTjIKCUrL
+hAdhBZXLJN3ns7KjIQIDAQAB
+-----END PUBLIC KEY-----`;
+
+  // 需要加密的数据
+  var _data = JSON.stringify({
+    name: 'zhangchao',
+    id: '140556'
+  });
+
+  // 生成签名
+  var _md5 = MD5(_data); // md5 摘要
+  console.log('md5 摘要是', _md5);
+  // 加密公钥
+  var encrypt = new JSEncrypt();
+  encrypt.setPublicKey(_PUBLIC_KEY);
+  var encrypted = encrypt.encrypt(_md5); // 加密后的内容
+  console.log('加密后的内容', encrypted);
+
+  // 解码
+  // var decrypt = new JSEncrypt();
+  // decrypt.setPrivateKey(_PRIVATE_KEY);
+  // var uncrypted = decrypt.decrypt(encrypted); // 解密后的内容
+  // console.log('解密后的内容', uncrypted);
+
+  // 加密请求报文
+  var _key = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+  // 文本转换成字节
+  var _text = 'helloworld';
+  var _textBytes = aesjs.utils.utf8.toBytes(_text);
+
+  // 生成 AES_KEY
+  var aesCtr = new aesjs.ModeOfOperation.ctr(_key, new aesjs.Counter(5));
+  var _encryptedBytes = aesCtr.encrypt(_textBytes);
+
+  // 加密数据体
+  var _encryptedHex = aesjs.utils.hex.fromBytes(_encryptedBytes);
+  console.log('随机生成密钥', _encryptedHex);
+
+  // 解密数据体
+  // var encryptedBytes = aesjs.utils.hex.toBytes(_encryptedHex);
+  // var aesCtr = new aesjs.ModeOfOperation.ctr(_key, new aesjs.Counter(5));
+  // var decryptedBytes = aesCtr.decrypt(encryptedBytes);
+  // var decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes);
+  // console.log('解密后的内容', decryptedText);
+
+  // 加密 AES 密钥
+
+  function req() {
+    postData('/test', {
+      name: 'zhangchao',
+      id: '140556'
+    }).then(function (res) {
+      console.log('请求得到的结果为', res);
+    })
+  }
+</script>
+
+</html>
